@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Validator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: #4f46e5;
+    }
+
+    .conditions {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .condition {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: #6b7280;
+      transition: color 0.25s;
+    }
+
+    .condition.met {
+      color: #16a34a;
+    }
+
+    .checkmark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #d1d5db;
+      flex-shrink: 0;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .checkmark svg {
+      display: none;
+      width: 12px;
+      height: 12px;
+    }
+
+    .condition.met .checkmark {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+
+    .condition.met .checkmark svg {
+      display: block;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1.5px solid #f0f2f5;
+      margin: 24px 0;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #4f46e5;
+    }
+
+    .export-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .export-btn:hover:not(:disabled) {
+      background: #4338ca;
+    }
+
+    .export-btn:disabled {
+      background: #a5b4fc;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create a Password</h1>
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter your password" autocomplete="new-password">
+
+    <div class="conditions">
+      <div class="condition" id="cond-length">
+        <span class="checkmark">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        At least 8 characters
+      </div>
+      <div class="condition" id="cond-uppercase">
+        <span class="checkmark">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Contains an uppercase letter
+      </div>
+      <div class="condition" id="cond-number">
+        <span class="checkmark">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Contains a number
+      </div>
+    </div>
+
+    <hr class="divider">
+    <label for="hint">Password Hint</label>
+    <input type="text" id="hint" placeholder="e.g. My dog's name" autocomplete="off">
+
+    <button class="export-btn" id="export-btn" disabled>Export as .txt</button>
+  </div>
+
+  <script>
+    const input     = document.getElementById("password");
+    const exportBtn = document.getElementById("export-btn");
+
+    const rules = [
+      { id: "cond-length",    test: v => v.length >= 8 },
+      { id: "cond-uppercase", test: v => /[A-Z]/.test(v) },
+      { id: "cond-number",    test: v => /[0-9]/.test(v) },
+    ];
+
+    function allMet(val) {
+      return rules.every(({ test }) => test(val));
+    }
+
+    input.addEventListener("input", () => {
+      const val = input.value;
+      rules.forEach(({ id, test }) => {
+        document.getElementById(id).classList.toggle("met", test(val));
+      });
+      exportBtn.disabled = !allMet(val);
+    });
+
+    function redact(password) {
+      return password.split("").map(ch => Math.random() < 0.3 ? "_" : ch).join("");
+    }
+
+    exportBtn.addEventListener("click", () => {
+      const password = input.value;
+      const hint     = document.getElementById("hint").value.trim() || "(none)";
+      const redacted = redact(password);
+
+      const content = [
+        "Password Hint: " + hint,
+        "Password:      " + redacted,
+        "",
+        "Note: ~30% of characters have been replaced with underscores.",
+      ].join("\n");
+
+      const blob = new Blob([content], { type: "text/plain" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = "password-hint.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
