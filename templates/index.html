@@ -181,6 +181,14 @@
         </span>
         Contains a number
       </div>
+      <div class="condition" id="cond-special">
+        <span class="checkmark">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Contains a special character (!@#$%^&*,.?)
+      </div>
     </div>
 
     <hr class="divider">
@@ -198,6 +206,7 @@
       { id: "cond-length",    test: v => v.length >= 8 },
       { id: "cond-uppercase", test: v => /[A-Z]/.test(v) },
       { id: "cond-number",    test: v => /[0-9]/.test(v) },
+      { id: "cond-special",   test: v => /[!@#$%^&*,.?]/.test(v) },
     ];
 
     function allMet(val) {
