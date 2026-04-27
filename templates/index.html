@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Password Validator</title>
+  <title>keyforge</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,9 +15,18 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #f0f2f5;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+    }
+
+    .site-header {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4f46e5;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
     }
 
     .card {
@@ -44,9 +53,40 @@
       margin-bottom: 8px;
     }
 
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-actions {
+      position: absolute;
+      right: 10px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .icon-btn:hover {
+      color: #4f46e5;
+      background: #f0f0ff;
+    }
+
     input[type="password"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 12px 76px 12px 14px;
       border: 1.5px solid #d1d5db;
       border-radius: 8px;
       font-size: 1rem;
@@ -125,6 +165,10 @@
       border-color: #4f46e5;
     }
 
+    .input-wrapper input[type="text"] {
+      padding-right: 76px;
+    }
+
     .export-btn {
       margin-top: 20px;
       width: 100%;
@@ -151,10 +195,28 @@
   </style>
 </head>
 <body>
+  <header class="site-header">keyforge</header>
   <div class="card">
     <h1>Create a Password</h1>
     <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Enter your password" autocomplete="new-password">
+    <div class="input-wrapper">
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="new-password">
+      <div class="input-actions">
+        <button type="button" class="icon-btn" id="copy-btn" title="Copy to clipboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-btn" id="reveal-btn" title="Show password">
+          <svg id="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+    </div>
 
     <div class="conditions">
       <div class="condition" id="cond-length">
@@ -201,6 +263,29 @@
   <script>
     const input     = document.getElementById("password");
     const exportBtn = document.getElementById("export-btn");
+    const copyBtn   = document.getElementById("copy-btn");
+    const revealBtn = document.getElementById("reveal-btn");
+    const iconEye    = document.getElementById("icon-eye");
+    const iconEyeOff = document.getElementById("icon-eye-off");
+
+    const iconCheck = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const iconClip  = copyBtn.innerHTML;
+
+    copyBtn.addEventListener("click", () => {
+      if (!input.value) return;
+      navigator.clipboard.writeText(input.value).then(() => {
+        copyBtn.innerHTML = iconCheck;
+        setTimeout(() => { copyBtn.innerHTML = iconClip; }, 1500);
+      });
+    });
+
+    revealBtn.addEventListener("click", () => {
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      iconEye.style.display    = isHidden ? "none"  : "";
+      iconEyeOff.style.display = isHidden ? ""      : "none";
+      revealBtn.title = isHidden ? "Hide password" : "Show password";
+    });
 
     const rules = [
       { id: "cond-length",    test: v => v.length >= 8 },
