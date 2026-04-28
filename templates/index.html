@@ -249,7 +249,7 @@
             <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </span>
-        Contains a special character (!@#$%^&*,.?)
+        Contains a special character
       </div>
     </div>
 
@@ -291,7 +291,7 @@
       { id: "cond-length",    test: v => v.length >= 8 },
       { id: "cond-uppercase", test: v => /[A-Z]/.test(v) },
       { id: "cond-number",    test: v => /[0-9]/.test(v) },
-      { id: "cond-special",   test: v => /[!@#$%^&*,.?]/.test(v) },
+      { id: "cond-special",   test: v => /[!@#$%^&*()\-_=+\[\]{}|;:'",.<>?/\\`~]/.test(v) },
     ];
 
     function allMet(val) {
@@ -307,7 +307,7 @@
     });
 
     function redact(password) {
-      return password.split("").map(ch => Math.random() < 0.3 ? "_" : ch).join("");
+      return password.split("").map(ch => Math.random() < 0.3 ? "█" : ch).join("");
     }
 
     exportBtn.addEventListener("click", () => {
@@ -319,7 +319,7 @@
         "Password Hint: " + hint,
         "Password:      " + redacted,
         "",
-        "Note: ~30% of characters have been replaced with underscores.",
+        "Note: ~30% of characters have been replaced with █.",
       ].join("\n");
 
       const blob = new Blob([content], { type: "text/plain" });
