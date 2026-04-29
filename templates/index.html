@@ -36,6 +36,38 @@
       padding: 40px;
       width: 100%;
       max-width: 400px;
+      position: relative;
+    }
+
+    .card-actions {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .card-action-left {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+    }
+
+    .card-action-btn {
+      background: none;
+      border: none;
+      font-size: 0.72rem;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 3px 7px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .card-action-btn:hover {
+      color: #4f46e5;
+      background: #f0f0ff;
     }
 
     h1 {
@@ -43,6 +75,7 @@
       font-weight: 600;
       color: #1a1a2e;
       margin-bottom: 24px;
+      text-align: center;
     }
 
     label {
@@ -51,6 +84,7 @@
       font-weight: 500;
       color: #444;
       margin-bottom: 8px;
+      text-align: center;
     }
 
     .input-wrapper {
@@ -192,11 +226,167 @@
       cursor: not-allowed;
       opacity: 0.7;
     }
+
+    /* Disguise overlay */
+    .disguised .site-header,
+    .disguised .card {
+      display: none;
+    }
+
+    #dummy-ui {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #f7f8fa;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .disguised #dummy-ui {
+      display: flex;
+    }
+
+    .dummy-header {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #16a34a;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+    }
+
+    .dummy-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.09);
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .dummy-add-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .dummy-add-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .dummy-add-row input:focus {
+      border-color: #16a34a;
+    }
+
+    .dummy-add-btn {
+      padding: 10px 18px;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dummy-add-btn:hover {
+      background: #15803d;
+    }
+
+    .dummy-task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dummy-task {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .dummy-task input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #16a34a;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .dummy-task span {
+      flex: 1;
+      transition: color 0.2s;
+    }
+
+    .dummy-task.done span {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+
+    .dummy-task-del {
+      background: none;
+      border: none;
+      color: #d1d5db;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .dummy-task-del:hover {
+      color: #ef4444;
+    }
+
+    .dummy-back-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .dummy-back-btn:hover {
+      color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .dummy-footer {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
   </style>
 </head>
 <body>
   <header class="site-header">keyforge</header>
   <div class="card">
+    <div class="card-action-left">
+      <button type="button" class="card-action-btn" id="disguise-btn">Disguise</button>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="card-action-btn" id="clear-btn">Clear</button>
+      <button type="button" class="card-action-btn" id="wipe-btn">Wipe clipboard</button>
+    </div>
     <h1>Create a Password</h1>
     <label for="password">Password</label>
     <div class="input-wrapper">
@@ -260,11 +450,40 @@
     <button class="export-btn" id="export-btn" disabled>Export as .txt</button>
   </div>
 
+  <div id="dummy-ui">
+    <button class="dummy-back-btn" id="dummy-back-btn" title="Back to keyforge">&#8592;</button>
+    <div class="dummy-header">✓ daily tasks</div>
+    <div class="dummy-card">
+      <div class="dummy-add-row">
+        <input type="text" id="dummy-input" placeholder="Add a task…" autocomplete="off">
+        <button class="dummy-add-btn" id="dummy-add-btn">Add</button>
+      </div>
+      <div class="dummy-task-list" id="dummy-task-list">
+        <div class="dummy-task">
+          <input type="checkbox"><span>Buy groceries</span>
+          <button class="dummy-task-del" aria-label="Delete">✕</button>
+        </div>
+        <div class="dummy-task">
+          <input type="checkbox"><span>Call dentist</span>
+          <button class="dummy-task-del" aria-label="Delete">✕</button>
+        </div>
+        <div class="dummy-task done">
+          <input type="checkbox" checked><span>Reply to emails</span>
+          <button class="dummy-task-del" aria-label="Delete">✕</button>
+        </div>
+      </div>
+      <div class="dummy-footer" id="dummy-footer"></div>
+    </div>
+  </div>
+
   <script>
     const input     = document.getElementById("password");
+    const hintInput = document.getElementById("hint");
     const exportBtn = document.getElementById("export-btn");
     const copyBtn   = document.getElementById("copy-btn");
     const revealBtn = document.getElementById("reveal-btn");
+    const clearBtn  = document.getElementById("clear-btn");
+    const wipeBtn   = document.getElementById("wipe-btn");
     const iconEye    = document.getElementById("icon-eye");
     const iconEyeOff = document.getElementById("icon-eye-off");
 
@@ -310,9 +529,36 @@
       return password.split("").map(ch => Math.random() < 0.3 ? "█" : ch).join("");
     }
 
+    clearBtn.addEventListener("click", () => {
+      input.value     = "";
+      hintInput.value = "";
+      rules.forEach(({ id, test }) => {
+        document.getElementById(id).classList.toggle("met", test(""));
+      });
+      exportBtn.disabled = true;
+      if (input.type === "text") {
+        input.type = "password";
+        iconEye.style.display    = "";
+        iconEyeOff.style.display = "none";
+        revealBtn.title = "Show password";
+      }
+    });
+
+    wipeBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText("​").then(() => {
+        const orig = wipeBtn.textContent;
+        wipeBtn.textContent  = "Wiped!";
+        wipeBtn.style.color  = "#16a34a";
+        setTimeout(() => {
+          wipeBtn.textContent = orig;
+          wipeBtn.style.color = "";
+        }, 1500);
+      });
+    });
+
     exportBtn.addEventListener("click", () => {
       const password = input.value;
-      const hint     = document.getElementById("hint").value.trim() || "(none)";
+      const hint     = hintInput.value.trim() || "(none)";
       const redacted = redact(password);
 
       const content = [
@@ -329,6 +575,68 @@
       a.download = "password-hint.txt";
       a.click();
       URL.revokeObjectURL(url);
+    });
+
+    // Disguise
+    const disguiseBtn   = document.getElementById("disguise-btn");
+    const dummyBackBtn  = document.getElementById("dummy-back-btn");
+    const dummyInput    = document.getElementById("dummy-input");
+    const dummyAddBtn   = document.getElementById("dummy-add-btn");
+    const dummyTaskList = document.getElementById("dummy-task-list");
+    const dummyFooter   = document.getElementById("dummy-footer");
+
+    function updateDummyFooter() {
+      const tasks     = dummyTaskList.querySelectorAll(".dummy-task");
+      const remaining = dummyTaskList.querySelectorAll(".dummy-task:not(.done)").length;
+      dummyFooter.textContent = tasks.length === 0 ? "No tasks" : `${remaining} remaining`;
+    }
+
+    function attachTaskEvents(taskEl) {
+      const cb  = taskEl.querySelector("input[type='checkbox']");
+      const del = taskEl.querySelector(".dummy-task-del");
+      cb.addEventListener("change", () => {
+        taskEl.classList.toggle("done", cb.checked);
+        updateDummyFooter();
+      });
+      del.addEventListener("click", () => {
+        taskEl.remove();
+        updateDummyFooter();
+      });
+    }
+
+    dummyTaskList.querySelectorAll(".dummy-task").forEach(attachTaskEvents);
+    updateDummyFooter();
+
+    function addDummyTask() {
+      const text = dummyInput.value.trim();
+      if (!text) return;
+      const task = document.createElement("div");
+      task.className = "dummy-task";
+      task.innerHTML = `<input type="checkbox"><span>${text.replace(/</g, "&lt;")}</span><button class="dummy-task-del" aria-label="Delete">✕</button>`;
+      dummyTaskList.appendChild(task);
+      attachTaskEvents(task);
+      dummyInput.value = "";
+      updateDummyFooter();
+    }
+
+    dummyAddBtn.addEventListener("click", addDummyTask);
+    dummyInput.addEventListener("keydown", e => { if (e.key === "Enter") addDummyTask(); });
+
+    disguiseBtn.addEventListener("click", () => {
+      document.body.classList.add("disguised");
+      document.title = "Daily Tasks";
+      dummyInput.focus();
+    });
+
+    function undisguise() {
+      document.body.classList.remove("disguised");
+      document.title = "keyforge";
+    }
+
+    dummyBackBtn.addEventListener("click", undisguise);
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && document.body.classList.contains("disguised")) undisguise();
     });
   </script>
 </body>
