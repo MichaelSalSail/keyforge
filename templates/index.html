@@ -507,10 +507,10 @@
     });
 
     const rules = [
-      { id: "cond-length",    test: v => v.length >= 8 },
-      { id: "cond-uppercase", test: v => /[A-Z]/.test(v) },
-      { id: "cond-number",    test: v => /[0-9]/.test(v) },
-      { id: "cond-special",   test: v => /[!@#$%^&*()\-_=+\[\]{}|;:'",.<>?/\\`~]/.test(v) },
+      { id: "cond-length",    test: v => v.length >= 8,                                         label: "At least 8 characters" },
+      { id: "cond-uppercase", test: v => /[A-Z]/.test(v),                                       label: "Contains an uppercase letter" },
+      { id: "cond-number",    test: v => /[0-9]/.test(v),                                       label: "Contains a number" },
+      { id: "cond-special",   test: v => /[!@#$%^&*()\-_=+\[\]{}|;:'",.<>?/\\`~]/.test(v),    label: "Contains a special character" },
     ];
 
     function allMet(val) {
@@ -522,11 +522,15 @@
       rules.forEach(({ id, test }) => {
         document.getElementById(id).classList.toggle("met", test(val));
       });
-      exportBtn.disabled = !allMet(val);
+      exportBtn.disabled = val.length === 0;
     });
 
     function redact(password) {
-      return password.split("").map(ch => Math.random() < 0.3 ? "█" : ch).join("");
+      const chars = password.split("").map(ch => Math.random() < 0.3 ? "█" : ch);
+      if (password.length < 8 && !chars.includes("█")) {
+        chars[Math.floor(Math.random() * chars.length)] = "█";
+      }
+      return chars.join("");
     }
 
     clearBtn.addEventListener("click", () => {
@@ -561,11 +565,19 @@
       const hint     = hintInput.value.trim() || "(none)";
       const redacted = redact(password);
 
+      const validatorLines = rules.map(({ test, label }) => (test(password) ? "✓" : "✗") + " " + label);
+
       const content = [
         "Password Hint: " + hint,
+        "",
+        "Password Requirements:",
+        ...validatorLines,
+        "",
         "Password:      " + redacted,
         "",
-        "Note: ~30% of characters have been replaced with █.",
+        password.length < 8
+          ? "Note: At least 1 character has been replaced with █."
+          : "Note: ~30% of characters have been replaced with █.",
       ].join("\n");
 
       const blob = new Blob([content], { type: "text/plain" });
