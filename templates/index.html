@@ -20,6 +20,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 40px 20px;
     }
 
     .site-header {
@@ -30,13 +31,23 @@
       margin-bottom: 20px;
     }
 
+    .app-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 720px;
+    }
+
     .card {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       padding: 40px;
-      width: 100%;
-      max-width: 400px;
+      flex: 1;
+      min-width: 0;
+      max-width: 420px;
       position: relative;
     }
 
@@ -204,15 +215,91 @@
       padding-right: 76px;
     }
 
-    .export-btn {
+    .save-btn {
       margin-top: 20px;
       width: 100%;
       padding: 12px;
+      background: #fff;
+      color: #4f46e5;
+      border: 1.5px solid #4f46e5;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .save-btn:hover:not(:disabled) {
+      background: #f0f0ff;
+    }
+
+    .save-btn:disabled {
+      border-color: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    /* Saved panel */
+    .notepad {
+      width: 260px;
+      flex-shrink: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .notepad-col-headers {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      padding: 14px 16px 10px;
+      border-bottom: 1.5px solid #e5e7eb;
+    }
+
+    .notepad-col-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .notepad-entries {
+      flex: 1;
+      min-height: 180px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    .notepad-empty {
+      color: #9ca3af;
+      font-size: 0.82rem;
+      font-style: italic;
+      padding: 20px 16px;
+    }
+
+    .notepad-entry {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .notepad-footer {
+      padding: 12px 16px;
+      border-top: 1.5px solid #e5e7eb;
+    }
+
+    .export-btn {
+      width: 100%;
+      padding: 10px;
       background: #4f46e5;
       color: #fff;
       border: none;
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
       transition: background 0.2s, opacity 0.2s;
@@ -230,7 +317,7 @@
 
     /* Disguise overlay */
     .disguised .site-header,
-    .disguised .card {
+    .disguised .app-layout {
       display: none;
     }
 
@@ -380,75 +467,90 @@
 </head>
 <body>
   <header class="site-header">keyforge</header>
-  <div class="card">
-    <div class="card-action-left">
-      <button type="button" class="card-action-btn" id="disguise-btn">Disguise</button>
-    </div>
-    <div class="card-actions">
-      <button type="button" class="card-action-btn" id="clear-btn">Clear</button>
-      <button type="button" class="card-action-btn" id="wipe-btn">Wipe clipboard</button>
-    </div>
-    <h1>Create a Password</h1>
-    <label for="password">Password</label>
-    <div class="input-wrapper">
-      <input type="password" id="password" placeholder="Enter your password" autocomplete="new-password">
-      <div class="input-actions">
-        <button type="button" class="icon-btn" id="copy-btn" title="Copy to clipboard">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-        </button>
-        <button type="button" class="icon-btn" id="reveal-btn" title="Show password">
-          <svg id="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-          <svg id="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
-        </button>
+  <div class="app-layout">
+    <div class="card">
+      <div class="card-action-left">
+        <button type="button" class="card-action-btn" id="disguise-btn">Disguise</button>
       </div>
+      <div class="card-actions">
+        <button type="button" class="card-action-btn" id="clear-btn">Clear</button>
+        <button type="button" class="card-action-btn" id="wipe-btn">Wipe clipboard</button>
+      </div>
+      <h1>Create a Password</h1>
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="new-password">
+        <div class="input-actions">
+          <button type="button" class="icon-btn" id="copy-btn" title="Copy to clipboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <button type="button" class="icon-btn" id="reveal-btn" title="Show password">
+            <svg id="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="conditions">
+        <div class="condition" id="cond-length">
+          <span class="checkmark">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          At least 8 characters
+        </div>
+        <div class="condition" id="cond-uppercase">
+          <span class="checkmark">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Contains an uppercase letter
+        </div>
+        <div class="condition" id="cond-number">
+          <span class="checkmark">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Contains a number
+        </div>
+        <div class="condition" id="cond-special">
+          <span class="checkmark">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Contains a special character
+        </div>
+      </div>
+
+      <hr class="divider">
+      <label for="hint">Password Hint</label>
+      <input type="text" id="hint" placeholder="e.g. My dog's name" autocomplete="off">
+
+      <button class="save-btn" id="save-btn" disabled>Save</button>
     </div>
 
-    <div class="conditions">
-      <div class="condition" id="cond-length">
-        <span class="checkmark">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        At least 8 characters
+    <div class="notepad">
+      <div class="notepad-col-headers">
+        <span class="notepad-col-header">Password</span>
+        <span class="notepad-col-header">Hint</span>
       </div>
-      <div class="condition" id="cond-uppercase">
-        <span class="checkmark">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        Contains an uppercase letter
+      <div class="notepad-entries" id="notepad-entries">
+        <div class="notepad-empty" id="notepad-empty">No saves yet</div>
       </div>
-      <div class="condition" id="cond-number">
-        <span class="checkmark">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        Contains a number
-      </div>
-      <div class="condition" id="cond-special">
-        <span class="checkmark">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        Contains a special character
+      <div class="notepad-footer">
+        <button class="export-btn" id="export-btn" disabled>Export as .txt</button>
       </div>
     </div>
-
-    <hr class="divider">
-    <label for="hint">Password Hint</label>
-    <input type="text" id="hint" placeholder="e.g. My dog's name" autocomplete="off">
-
-    <button class="export-btn" id="export-btn" disabled>Export as .txt</button>
   </div>
 
   <div id="dummy-ui">
@@ -481,12 +583,16 @@
     const input     = document.getElementById("password");
     const hintInput = document.getElementById("hint");
     const exportBtn = document.getElementById("export-btn");
+    const saveBtn   = document.getElementById("save-btn");
     const copyBtn   = document.getElementById("copy-btn");
     const revealBtn = document.getElementById("reveal-btn");
     const clearBtn  = document.getElementById("clear-btn");
     const wipeBtn   = document.getElementById("wipe-btn");
     const iconEye    = document.getElementById("icon-eye");
     const iconEyeOff = document.getElementById("icon-eye-off");
+    const notepadEntries = document.getElementById("notepad-entries");
+    const notepadEmpty   = document.getElementById("notepad-empty");
+    const saves = [];
 
     const iconCheck = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     const iconClip  = copyBtn.innerHTML;
@@ -523,7 +629,9 @@
       rules.forEach(({ id, test }) => {
         document.getElementById(id).classList.toggle("met", test(val));
       });
-      exportBtn.disabled = val.length === 0;
+      const hasPassword = val.length > 0;
+      exportBtn.disabled = !hasPassword;
+      saveBtn.disabled   = !hasPassword;
     });
 
     function redact(password) {
@@ -541,6 +649,7 @@
         document.getElementById(id).classList.toggle("met", test(""));
       });
       exportBtn.disabled = true;
+      saveBtn.disabled   = true;
       if (input.type === "text") {
         input.type = "password";
         iconEye.style.display    = "";
@@ -561,25 +670,62 @@
       });
     });
 
+    saveBtn.addEventListener("click", () => {
+      const hint = hintInput.value.trim() || "(none)";
+
+      saves.push({ password: input.value, hint });
+      notepadEmpty.style.display = "none";
+
+      const entry = document.createElement("div");
+      entry.className = "notepad-entry";
+      entry.innerHTML =
+        `<span>*****</span>` +
+        `<span>${hint.replace(/[<>&"]/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;' })[c])}</span>`;
+      notepadEntries.appendChild(entry);
+      notepadEntries.scrollTop = notepadEntries.scrollHeight;
+
+      input.value     = "";
+      hintInput.value = "";
+      rules.forEach(({ id }) => document.getElementById(id).classList.remove("met"));
+      exportBtn.disabled = false;
+      saveBtn.disabled   = true;
+      if (input.type === "text") {
+        input.type = "password";
+        iconEye.style.display    = "";
+        iconEyeOff.style.display = "none";
+        revealBtn.title = "Show password";
+      }
+
+      const orig = saveBtn.textContent;
+      saveBtn.textContent   = "Saved!";
+      saveBtn.style.color   = "#16a34a";
+      saveBtn.style.borderColor = "#16a34a";
+      setTimeout(() => {
+        saveBtn.textContent       = orig;
+        saveBtn.style.color       = "";
+        saveBtn.style.borderColor = "";
+      }, 1500);
+    });
+
     exportBtn.addEventListener("click", () => {
-      const password = input.value;
-      const hint     = hintInput.value.trim() || "(none)";
-      const redacted = redact(password);
+      const sections = saves.map(({ password, hint }) => {
+        const redacted = redact(password);
+        const validatorLines = rules.map(({ test, label }) => (test(password) ? "✓" : "✗") + " " + label);
+        return [
+          "Password Hint: " + hint,
+          "",
+          "Password Requirements:",
+          ...validatorLines,
+          "",
+          "Password:      " + redacted,
+          "",
+          password.length < 8
+            ? "Note: At least 1 character has been replaced with █."
+            : "Note: ~30% of characters have been replaced with █.",
+        ].join("\n");
+      });
 
-      const validatorLines = rules.map(({ test, label }) => (test(password) ? "✓" : "✗") + " " + label);
-
-      const passwordSection = [
-        "Password Hint: " + hint,
-        "",
-        "Password Requirements:",
-        ...validatorLines,
-        "",
-        "Password:      " + redacted,
-        "",
-        password.length < 8
-          ? "Note: At least 1 character has been replaced with █."
-          : "Note: ~30% of characters have been replaced with █.",
-      ].join("\n");
+      const passwordSection = sections.join("\n\n-----------\n\n");
 
       const template = DISGUISE_TEMPLATES[Math.floor(Math.random() * DISGUISE_TEMPLATES.length)];
 
