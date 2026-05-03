@@ -290,10 +290,67 @@
     .notepad-footer {
       padding: 12px 16px;
       border-top: 1.5px solid #e5e7eb;
+      display: flex;
+      gap: 8px;
+    }
+
+    .upload-wrapper {
+      flex: 0 0 auto;
+      position: relative;
+      max-width: 160px;
+    }
+
+    .upload-template-btn {
+      width: 100%;
+      padding: 10px 14px;
+      background: transparent;
+      color: #4f46e5;
+      border: 1.5px solid #4f46e5;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .upload-template-btn:hover {
+      background: #ede9fe;
+    }
+
+    .upload-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      background: #1f2937;
+      color: #f9fafb;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      padding: 7px 10px;
+      border-radius: 6px;
+      width: 210px;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 10;
+    }
+
+    .upload-tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 14px;
+      border: 5px solid transparent;
+      border-top-color: #1f2937;
+    }
+
+    .upload-wrapper:hover .upload-tooltip {
+      opacity: 1;
     }
 
     .export-btn {
-      width: 100%;
+      flex: 1;
       padding: 10px;
       background: #4f46e5;
       color: #fff;
@@ -548,6 +605,11 @@
         <div class="notepad-empty" id="notepad-empty">No saves yet</div>
       </div>
       <div class="notepad-footer">
+        <div class="upload-wrapper">
+          <input type="file" id="template-file-input" accept=".txt" style="display:none">
+          <button class="upload-template-btn" id="upload-template-btn">Upload .txt</button>
+          <span class="upload-tooltip">Use a previous export or your own document as the cover template.</span>
+        </div>
         <button class="export-btn" id="export-btn" disabled>Export as .txt</button>
       </div>
     </div>
@@ -590,9 +652,12 @@
     const wipeBtn   = document.getElementById("wipe-btn");
     const iconEye    = document.getElementById("icon-eye");
     const iconEyeOff = document.getElementById("icon-eye-off");
-    const notepadEntries = document.getElementById("notepad-entries");
-    const notepadEmpty   = document.getElementById("notepad-empty");
+    const notepadEntries    = document.getElementById("notepad-entries");
+    const notepadEmpty      = document.getElementById("notepad-empty");
+    const uploadTemplateBtn = document.getElementById("upload-template-btn");
+    const templateFileInput = document.getElementById("template-file-input");
     const saves = [];
+    let uploadedTemplate = null;
 
     const iconCheck = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     const iconClip  = copyBtn.innerHTML;
@@ -636,7 +701,7 @@
 
     function redact(password) {
       const chars = password.split("").map(ch => Math.random() < 0.3 ? "█" : ch);
-      if (password.length < 8 && !chars.includes("█")) {
+      if (!chars.includes("█")) {
         chars[Math.floor(Math.random() * chars.length)] = "█";
       }
       return chars.join("");
@@ -707,6 +772,23 @@
       }, 1500);
     });
 
+    uploadTemplateBtn.addEventListener("click", () => templateFileInput.click());
+
+    templateFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        uploadedTemplate = {
+          filename: file.name.replace(/\.txt$/i, ""),
+          content: ev.target.result
+        };
+        uploadTemplateBtn.textContent = file.name;
+      };
+      reader.readAsText(file);
+      templateFileInput.value = "";
+    });
+
     exportBtn.addEventListener("click", () => {
       const sections = saves.map(({ password, hint }) => {
         const redacted = redact(password);
@@ -727,12 +809,19 @@
 
       const passwordSection = sections.join("\n\n-----------\n\n");
 
-      const template = DISGUISE_TEMPLATES[Math.floor(Math.random() * DISGUISE_TEMPLATES.length)];
+      const template = uploadedTemplate
+        ?? DISGUISE_TEMPLATES[Math.floor(Math.random() * DISGUISE_TEMPLATES.length)];
 
-      const today   = new Date();
-      const dateStr = today.getFullYear().toString()
-        + String(today.getMonth() + 1).padStart(2, "0")
-        + String(today.getDate()).padStart(2, "0");
+      let filename;
+      if (uploadedTemplate) {
+        filename = uploadedTemplate.filename + ".txt";
+      } else {
+        const today   = new Date();
+        const dateStr = today.getFullYear().toString()
+          + String(today.getMonth() + 1).padStart(2, "0")
+          + String(today.getDate()).padStart(2, "0");
+        filename = template.filename + "_" + dateStr + ".txt";
+      }
 
       const content = template.content + "\n\n\n\n\n" + passwordSection;
 
@@ -740,7 +829,7 @@
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href     = url;
-      a.download = template.filename + "_" + dateStr + ".txt";
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
     });
